@@ -1,22 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Student infos')
+@section('title', __('lang.text_student_infos'))
 
 @section('content')
-
 <div class="container d-flex mt-5 justify-content-between">
-        <a href="{{ route('site.index') }}" class="btn btn-info ml-3">Go back to Student List</a>
+        <a href="{{ route('site.index') }}" class="btn btn-info ml-3">@lang('lang.text_go_back')</a>
     </div>
     <div class="container d-flex flex-column align-items-center">
         <h1 class="display-1 mt-5">{{ $student->name }}</h1>
         <div class="container d-flex flex-column mt-5">
             <table>
                 <tr>
-                    <th>Address</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Birthdate</th>
-                    <th>City</th>
+                    <th>@lang('lang.text_address')</th>
+                    <th>@lang('lang.text_phone')</th>
+                    <th>@lang('lang.text_email')</th>
+                    <th>@lang('lang.text_birthdate')</th>
+                    <th>@lang('lang.text_city')</th>
                 </tr>
                 <tr>
                     <td>{{ $student->address }}</td>
@@ -29,9 +28,12 @@
         </div>
         <hr>
     </div>
+    
     <div class="container d-flex justify-content-between mb-5">
-        <a href="{{ route('site.edit', $student->id) }}" class="btn btn-primary">Update</a>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+        @if($student->id == Auth::user()->id)
+        <a href="{{ route('site.edit', $student->id) }}" class="btn btn-primary">@lang('lang.text_update')</a>
+        @endif
+        {{--<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">@lang('lang.text_delete')</button>--}}
     </div>
 
 <!-- Modal -->
@@ -39,14 +41,14 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="deleteModalLabel">Delete a student</h1>
+        <h1 class="modal-title fs-5" id="deleteModalLabel">@lang('lang.text_delete_student')</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Do you really want to delete the student "{{ $student->name }}"? 
+      @lang('lang.text_delete_confirmation')"{{ $student->name }}"? 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@lang('lang.text_cancel')</button>
         <form action="{{ route('site.delete', $student->id) }}" method="post">
             @csrf
             @method('delete')

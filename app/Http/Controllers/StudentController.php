@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Models\City;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -29,7 +30,9 @@ class StudentController extends Controller
     public function create()
     {
         $cities = City::all(); 
-        return view('site.create', ['cities'=>$cities]);
+        $user_id = request('user');
+        $user = User::find($user_id);
+        return view('site.create', ['cities'=>$cities, 'user'=>$user]);
     }
 
     /**
@@ -40,6 +43,17 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
+        $rules = [
+            'name'      => 'required|string|min:2|max:50',
+            'address'   => 'string|max:255',
+            'phone'     => 'string|max:15',
+            'email'     => 'required|email|unique:students,email|max:200',
+            'birthdate' => 'required|date|before:today',
+            'city_id'   => 'exists:cities,id',
+        ];
+        
+        $request->validate($rules);
+        
         $newStudent = Student::create([
             'name'       => $request->name,
             'address'    => $request->address,
@@ -47,9 +61,14 @@ class StudentController extends Controller
             'email'      => $request->email,
             'birthdate'  => $request->birthdate,
             'city_id'    => $request->city_id,
+            'user_id'    => $request->user
         ]);
 
-        return redirect(route('site.index'))->withSuccess('The student has been added with success.'); 
+        if ($newStudent) {
+            return redirect(route('site.index'))->withSuccess(trans('lang.text_student_created'));
+        } else {
+            return redirect()->back()->withError(trans('lang.text_student_not_created'));
+        }
     }
 
     /**
@@ -96,6 +115,18 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $selectedStudent)
     {
+
+        $rules = [
+            'name'      => 'required|string|min:2|max:50',
+            'address'   => 'string|max:255',
+            'phone'     => 'string|max:15',
+            'email'     => 'required|email|max:200',
+            'birthdate' => 'required|date|before:today',
+            'city_id'   => 'exists:cities,id',
+        ];
+        
+        $request->validate($rules);
+
         $selectedStudent->update([
             'name'       => $request->name,
             'address'    => $request->address,
@@ -106,7 +137,13 @@ class StudentController extends Controller
         ]);
 
         // Retourner la vue avec l'id de l'article modifié.
-        return redirect(route('site.show', $selectedStudent->id))->withSuccess('The student has been updated with success.');
+        return redirect(route('site.show', $selectedStudent->id))->withSuccess(trans('lang.text_student_updated'));
+
+        if ($selectedStudent) {
+            return redirect(route('site.show', $selectedStudent->id))->withSuccess(trans('lang.text_student_updated')); 
+        } else {
+            return redirect()->back()->withError(trans('lang.text_student_not_updated'));
+        }
     }
 
     /**
@@ -119,6 +156,6 @@ class StudentController extends Controller
     {
         $selectedStudent->delete();
 
-        return redirect(route('site.index'))->withSuccess('The student has been deleted with success.'); 
+        return redirect(route('site.index'))->withSuccess(trans('lang.text_student_deleted')); 
     }
 }

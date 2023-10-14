@@ -15,7 +15,8 @@ class Student extends Model
         'phone', 
         'email',
         'birthdate',
-        'city_id'
+        'city_id',
+        'user_id'
     ];
     
     public function studentHasCity(){
